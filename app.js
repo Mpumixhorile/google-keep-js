@@ -31,6 +31,7 @@ class App {
 
     this.addEventListeners();
     this.displayNotes();
+
   }
 
   addEventListeners() {
@@ -60,34 +61,38 @@ class App {
       this.handleToggleSidebar();
     });
   }
+ 
 
-  handleFormClick(event) {
+  
+  
+  handleFormClick(event){
     const isActiveFormClickedOn = this.$activeForm.contains(event.target);
-    const isInactiveFormClickedOn = this.$inactiveForm.contains(event.target);
+    const isInActiveFormClickedOn = this.$inactiveForm.contains(event.target);
     const title = this.$noteTitle.value;
     const text = this.$noteText.value;
-
-    if (isInactiveFormClickedOn) {
-      this.openActiveForm();
-    } else if (!isInactiveFormClickedOn && !isActiveFormClickedOn) {
-      this.addNote({ title, text });
-      this.closeActiveForm();
+    
+    if(isInActiveFormClickedOn) {
+     this.openActiveForm();
     }
-  }
+    else if (!isActiveFormClickedOn) {
+    this.addNote({title , text});
+    this.closeActiveForm();
 
-  openActiveForm() {
+    }
+   
+}
+openActiveForm(){
     this.$inactiveForm.style.display = "none";
     this.$activeForm.style.display = "block";
     this.$noteText.focus();
-  }
-  closeActiveForm() {
-    this.$inactiveForm.style.display = "block";
+}
+closeActiveForm(){
     this.$activeForm.style.display = "none";
+    this.$inactiveForm.style.display = "block";
     this.$noteText.value = "";
     this.$noteTitle.value = "";
-  }
-
-  openModal(event) {
+}
+openModal(event) {
     const $selectedNote = event.target.closest(".note");
     if ($selectedNote && !event.target.closest(".archive")) {
       this.selectedNoteId = $selectedNote.id;
@@ -98,100 +103,100 @@ class App {
       return;
     }
   }
-  closeModal(event) {
-    const isModalFormClickedOn = this.$modalForm.contains(event.target);
-    const isCloseModalBtnClickedOn = this.$closeModalForm.contains(
-      event.target
-    );
-    if (
-      (!isModalFormClickedOn || isCloseModalBtnClickedOn) &&
-      this.$modal.classList.contains("open-modal")
-    ) {
-      this.editNote(this.selectedNoteId, {
-        title: this.$modalTitle.value,
-        text: this.$modalText.value
+closeModal(event) {
+const isModalFormClickedOn = this.$modalForm.contains(event.target);
+const isCloseModalBtnClickedOn = this.$closeModalForm.contains(event.target);
+if ((!isModalFormClickedOn || isCloseModalBtnClickedOn) && this.$modal.classList.contains("open-modal")) {
+  this.editNote(this.selectedNoteId, {
+    title: this.$modalTitle.value,
+    text: this.$modalText.value
+  });
+  this.$modal.classList.remove("open-modal");
+}
+}
+handleArchiving(event) {
+const $selectedNote = event.target.closest(".note");
+if ($selectedNote && event.target.closest(".archive")) {
+  this.selectedNoteId = $selectedNote.id;
+  this.deleteNote(this.selectedNoteId);
+} else {
+  return;
+}
+}
+
+  
+    addNote({ title, text }) {
+        if(text != "") {
+            const newNote = new Note(cuid(), title, text);
+            this.notes = [...this.notes, newNote];
+            this.render();
+        }
+    }
+  
+    editNote(id, { title, text }) {
+      this.notes = this.notes.map((note) => {
+        if (note.id == id) {
+          note.title = title;
+          note.text = text;
+        }
+        return note;
       });
-      this.$modal.classList.remove("open-modal");
-    }
-  }
-
-  handleArchiving(event) {
-    const $selectedNote = event.target.closest(".note");
-    if ($selectedNote && event.target.closest(".archive")) {
-      this.selectedNoteId = $selectedNote.id;
-      this.deleteNote(this.selectedNoteId);
-    } else {
-      return;
-    }
-  }
-
-  addNote({ title, text }) {
-    if (text != "") {
-      const newNote = new Note(cuid(), title, text);
-      this.notes = [...this.notes, newNote];
       this.render();
     }
-  }
-
-  editNote(id, { title, text }) {
-    this.notes = this.notes.map((note) => {
-      if (note.id == id) {
-        note.title = title;
-        note.text = text;
-      }
-      return note;
-    });
-    this.render();
-  }
-
-  deleteNote(id) {
-    this.notes = this.notes.filter((note) => note.id != id);
-    this.render();
-  }
-
-  handleMouseOverNote(element) {
-    const $note = document.querySelector("#" + element.id);
-    const $checkNote = $note.querySelector(".check-circle");
-    const $noteFooter = $note.querySelector(".note-footer");
-    $checkNote.style.visibility = "visible";
-    $noteFooter.style.visibility = "visible";
-  }
-  handleMouseOutNote(element) {
-    const $note = document.querySelector("#" + element.id);
-    const $checkNote = $note.querySelector(".check-circle");
-    const $noteFooter = $note.querySelector(".note-footer");
-    $checkNote.style.visibility = "hidden";
-    $noteFooter.style.visibility = "hidden";
-  }
-
-  handleToggleSidebar() {
-    if (this.miniSidebar) {
-      this.$sidebar.style.width = "250px";
-      this.$sidebar.classList.add("sidebar-hover");
-      this.$sidebarActiveItem.classList.add("sidebar-active-item");
-      this.miniSidebar = false;
-    } else {
-      this.$sidebar.style.width = "80px";
-      this.$sidebar.classList.remove("sidebar-hover");
-      this.$sidebarActiveItem.classList.remove("sidebar-active-item");
-      this.miniSidebar = true;
+  
+    deleteNote(id) {
+      this.notes = this.notes.filter((note) => note.id != id);
+      this.render();
     }
-  }
 
-  savenotes() {
-    localStorage.setItem('notes', JSON.stringify(this.notes));
-  }
+    handleMouseOverNote(element) {
+        const $note = document.querySelector("#" + element.id);
+        const $checkNote = $note.querySelector(".check-circle");
+        const $noteFooter = $note.querySelector(".note-footer");
+        $checkNote.style.visibility = "visible";
+        $noteFooter.style.visibility = "visible";
+      }
+      handleMouseOutNote(element) {
+        const $note = document.querySelector("#" + element.id);
+        const $checkNote = $note.querySelector(".check-circle");
+        const $noteFooter = $note.querySelector(".note-footer");
+        $checkNote.style.visibility = "hidden";
+        $noteFooter.style.visibility = "hidden";
+      }
+      handleToggleSidebar(event) {
+        if (this.miniSidebar) {
+          this.$sidebar.classList.add("sidebar-hover");
+          this.$sidebarActiveItem.classList.add("sidebar-active-item");
+          this.$sidebar.style.width = "250px";
+          this.miniSidebar = false;
+        } else {
+          this.$sidebar.style.width = "80px";
+          this.miniSidebar = true;
+          this.$sidebar.classList.remove("sidebar-hover");
+          this.$sidebarActiveItem.classList.remove("sidebar-active-item");
+        }
+      }
 
-  render() {
-    this.saveNotes();
-    this.displayNotes();
-  }
+      saveNotes() {
+        localStorage.setItem("notes", JSON.stringify(this.notes));
+      }
+    
+      render() {
+        this.saveNotes();
+        this.displayNotes();
+      }
+  
+
+
+
+ 
+
   displayNotes() {
     this.$notes.innerHTML = this.notes
       .map(
         (note) =>
           `
-        <div class="note" id="${note.id}">onmouseout="app.handleMouseOutNote(this)"
+          <div class="note" id="${note.id}" onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)">
           <span class="material-icons check-circle">check_circle</span>
           <div class="title">${note.title}</div>
           <div class="text">${note.text}</div>
@@ -240,4 +245,4 @@ class App {
   }
 }
 
-const app = new App();
+const app = new App();
